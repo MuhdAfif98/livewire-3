@@ -7,7 +7,7 @@ use Livewire\Attributes\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-class Clicker extends Component
+class RegisterForm extends Component
 {
     use WithFileUploads;
 
@@ -25,25 +25,30 @@ class Clicker extends Component
 
     public function createNewUser()
     {
+        sleep(3);
+
         $validated = $this->validate();
 
         if ($this->image) {
             $validated['image'] = $this->image->store('uploads');
         }
 
-        User::create($validated);
+        $user = User::create($validated);
 
         $this->reset('name', 'email', 'password', 'image');
 
         session()->flash('success', 'User created successfully');
+
+        $this->dispatch('user-created', $user);
+    }
+
+    public function reloadList()
+    {
+        $this->dispatch('user-created');
     }
 
     public function render()
     {
-        $users = User::paginate(10);
-
-        return view('livewire.clicker', [
-            'users' => $users,
-        ]);
+        return view('livewire.register-form');
     }
 }
